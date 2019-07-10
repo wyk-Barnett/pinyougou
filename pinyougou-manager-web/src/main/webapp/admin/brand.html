@@ -46,8 +46,8 @@
 
             //刷新列表
             $scope.reloadList=function(){
-                $scope.findPage( $scope.paginationConf.currentPage ,  $scope.paginationConf.itemsPerPage );
-            };
+                $scope.search( $scope.paginationConf.currentPage ,  $scope.paginationConf.itemsPerPage );
+        };
 
             //分页
             $scope.findPage=function(currentPage,pageSize){
@@ -109,7 +109,16 @@
                         alert(response.message);
                     }
                 })
-            }
+            };
+
+            $scope.searchEntity = {};
+            $scope.search=function (currentPage,pageSize) {
+                $http.post("../brand/search.do?currentPage="+currentPage+"&pageSize="+pageSize , $scope.searchEntity).success(
+                    function (response) {
+                    $scope.list=response.rows;//显示当前页数据
+                    $scope.paginationConf.totalItems=response.total;//更新总记录数
+                })
+            };
 
 
         })
@@ -143,7 +152,8 @@
         </div>
         <div class="box-tools pull-right">
             <div class="has-feedback">
-
+                产品名称: <input type="text" ng-model="searchEntity.name"> 产品首字母:<input type="text" ng-model="searchEntity.firstChar">
+                <input type="button" value="搜索" ng-click="reloadList()">
             </div>
         </div>
         <!--工具栏/-->
