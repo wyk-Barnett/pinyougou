@@ -43,4 +43,33 @@ public class BrandController {
         }
         return new Result(false,"保存失败");
     }
+
+    @RequestMapping("/findOne.do")
+    public TbBrand findOne(Long id){
+        return brandService.findOne(id);
+    }
+
+    @RequestMapping("/update.do")
+    public Result update(@RequestBody TbBrand brand){
+        try {
+            brandService.update(brand);
+            return new Result(true,"修改成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new Result(false,"修改失败");
+    }
+
+    @RequestMapping("/delete.do")
+    public Result delete(Long[] ids){
+        try {
+            brandService.delete(ids);
+            return new Result(true,"删除成功");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return new Result(false,"删除失败");
+    }
+
+
 }

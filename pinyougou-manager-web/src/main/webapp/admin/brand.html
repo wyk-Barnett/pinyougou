@@ -24,13 +24,13 @@
         app.controller('brandController1',function($scope,$http){
 
             //查询品牌列表
-            $scope.findAll=function(){
-                $http.get('../brand/findAll.do').success(
-                    function(response){
-                        $scope.list=response;
-                    }
-                );
-            }
+            // $scope.findAll=function(){
+            //     $http.get('../brand/findAll.do').success(
+            //         function(response){
+            //             $scope.list=response;
+            //         }
+            //     );
+            // };
 
 
             //分页控件配置currentPage:当前页   totalItems :总记录数  itemsPerPage:每页记录数  perPageOptions :分页选项  onChange:当页码变更后自动触发的方法
@@ -59,14 +59,53 @@
                 );
             };
 
-            //新增
+            //新增修改
             $scope.save=function () {
-                $http.post("../brand/add.do",$scope.entity).success(function (response) {
+                var methodName="add";//方法名
+                if ($scope.entity.id!=null){
+                    methodName="update";
+                }
+                $http.post("../brand/"+methodName+".do",$scope.entity).success(function (response) {
                     if (response.success) {
                         //新增成功,刷新
                         $scope.reloadList();
                     }else {
                         //新增失败,弹出提示消息
+                        alert(response.message);
+                    }
+                })
+            };
+
+            //查询单个
+            $scope.findOne=function (id) {
+                $http.get("../brand/findOne.do?id="+id).success(function (response) {
+                    $scope.entity=response;
+                })
+            };
+
+            //定义一个集合,储存复选框被选中的品牌id
+            $scope.selectIds=[];
+            //改变复选框集合中的值
+            $scope.updateSelection=function ($event,id) {
+                if ($event.target.checked){
+                    //表示input标签的复选框被选中,再向集合中添加id值
+                    $scope.selectIds.push(id);
+                }else {
+                    //再次点击,从集合中删除  根据元素获取在集合中的索引
+                    var index = $scope.selectIds.indexOf(id);
+                    //删除指定索引位置的元素,删除一位
+                    $scope.selectIds.splice(index,1);
+                }
+            };
+
+            //删除功能
+            $scope.dele=function () {
+                $http.get("../brand/delete.do?ids="+$scope.selectIds).success(function (response) {
+                    if (response.success) {
+                        //删除成功,刷新
+                        $scope.reloadList();
+                    }else {
+                        //删除失败,弹出提示消息
                         alert(response.message);
                     }
                 })
@@ -94,9 +133,9 @@
             <div class="form-group form-inline">
                 <div class="btn-group">
                     <button type="button" class="btn btn-default" title="新建" data-toggle="modal"
-                            data-target="#editModal" ng-click="entity{}"><i class="fa fa-file-o"></i> 新建
+                            data-target="#editModal" ng-click="entity={}"><i class="fa fa-file-o"></i> 新建
                     </button>
-                    <button type="button" class="btn btn-default" title="删除"><i class="fa fa-trash-o"></i> 删除</button>
+                    <button type="button" class="btn btn-default" title="删除" ng-click="dele()"><i class="fa fa-trash-o"></i> 删除</button>
                     <button type="button" class="btn btn-default" title="刷新" onclick="window.location.reload();"><i class="fa fa-refresh"></i> 刷新
                     </button>
                 </div>
@@ -124,12 +163,12 @@
             </thead>
             <tbody>
             <tr ng-repeat="entity in list">
-                <td><input type="checkbox"></td>
+                <td><input type="checkbox" ng-click="updateSelection($event,entity.id)"></td>
                 <td>{{entity.id}}</td>
                 <td>{{entity.name}}</td>
                 <td>{{entity.firstChar}}</td>
                 <td class="text-center">
-                    <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal">修改
+                    <button type="button" class="btn bg-olive btn-xs" data-toggle="modal" data-target="#editModal" ng-click="findOne(entity.id)">修改
                     </button>
                 </td>
             </tr>
@@ -137,7 +176,6 @@
         </table>
         <!--数据列表/-->
         <tm-pagination conf="paginationConf"></tm-pagination>
-
 
     </div>
     <!-- 数据表格 /-->

@@ -37,10 +37,18 @@ public interface BrandService {
      * @param id id
      * @return 返回尸体对象
      */
-    TbBrand findOne(long id);
+    TbBrand findOne(Long id);
 
+    /**
+     * 修改品牌功能
+     * @param brand 品牌对象
+     */
+    void update(TbBrand brand);
 
-
-
+    /**
+     * 根据id删除
+     * @param ids 批量删除
+     */
+    void delete(Long[] ids);
 
 }
