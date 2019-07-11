@@ -5,7 +5,7 @@ app.service("brandService",function ($http) {
         return $http.get('../brand/findAll.do');
     };
     //分页查询
-    this.findPage=function (currentPage,pageSize) {
+    this.findByPage=function (currentPage,pageSize) {
         return $http.get('../brand/findByPage.do?currentPage='+currentPage +'&pageSize='+pageSize);
     };
     //添加品牌

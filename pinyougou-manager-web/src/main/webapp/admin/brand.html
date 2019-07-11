@@ -19,12 +19,14 @@
     <link rel="stylesheet" href="../plugins/angularjs/pagination.css">
     <!--分页插件结束-->
 
+    <!--引入模块.服务.控制层js文件-->
     <script type="text/javascript" src="../js/base_pagination.js"></script>
     <script type="text/javascript" src="../js/service/brandService.js"></script>
+    <script type="text/javascript" src="../js/controller/baseController.js"></script>
     <script type="text/javascript" src="../js/controller/brandController.js"></script>
 
 </head>
-<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brandController1" ng-init="findAll()">
+<body class="hold-transition skin-red sidebar-mini" ng-app="pinyougou" ng-controller="brandController" ng-init="reloadList()">
 <!-- .box-body -->
 <div class="box-header with-border">
     <h3 class="box-title">品牌管理</h3>
@@ -51,7 +53,7 @@
         <div class="box-tools pull-right">
             <div class="has-feedback">
                 品牌名称: <input type="text" ng-model="searchEntity.name"> 品牌首字母:<input type="text" ng-model="searchEntity.firstChar">
-                <input type="button" value="搜索" ng-click="reloadList()">
+                <input type="button" class="btn btn-default" value="搜索" ng-click="reloadList()">
             </div>
         </div>
         <!--工具栏/-->
