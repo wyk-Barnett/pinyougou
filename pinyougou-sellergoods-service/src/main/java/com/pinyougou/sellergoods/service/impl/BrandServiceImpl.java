@@ -69,7 +69,7 @@ public class BrandServiceImpl implements BrandService {
                 criteria.andNameLike("%"+brand.getName()+"%");
             }
             if (brand.getFirstChar()!=null && brand.getFirstChar().length()>0){
-                criteria.andFirstCharLike("%"+brand.getFirstChar()+"%");
+                criteria.andFirstCharEqualTo(brand.getFirstChar());
             }
         }
         PageHelper.startPage(currentPage,pageSize);
