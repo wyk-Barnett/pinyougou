@@ -12,7 +12,7 @@ app.controller('brandController',function($scope,$http,$controller,brandService)
         );
     };
     //分页查询
-    $scope.findByPage=function(currentPage,pageSize){
+    $scope.findPage=function(currentPage,pageSize){
         brandService.findPage(currentPage,pageSize).success(
             function(response){
                 $scope.list=response.rows;//显示当前页数据
