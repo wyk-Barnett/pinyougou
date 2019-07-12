@@ -27,4 +27,16 @@ app.controller("baseController",function($scope){
             $scope.selectIds.splice(index,1);
         }
     };
+
+    $scope.formatJSON=function (jsonStr, key) {
+        var json = JSON.parse(jsonStr);
+        var value = "";
+        for (var i = 0; i < json.length; i++) {
+            if (i > 0) {
+                value+=",";
+            }
+            value+=json[i][key];
+        }
+        return value;
+    }
 });

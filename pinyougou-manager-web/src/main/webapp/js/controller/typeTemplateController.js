@@ -1,5 +1,5 @@
  //控制层 
-app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemplateService){	
+app.controller('typeTemplateController' ,function($scope,$controller ,typeTemplateService,brandService,specificationService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -10,7 +10,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				$scope.list=response;
 			}			
 		);
-	}    
+	};
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -20,16 +20,20 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	//查询实体 
 	$scope.findOne=function(id){				
 		typeTemplateService.findOne(id).success(
 			function(response){
-				$scope.entity= response;					
+                $scope.entity.name=response.name;
+                //需要将字符串转化为JSON格式
+				$scope.entity.specIds= JSON.parse(response.specIds);
+				$scope.entity.brandIds= JSON.parse(response.brandIds);
+				$scope.entity.customAttributeItems= JSON.parse(response.customAttributeItems);
 			}
 		);				
-	}
+	};
 	
 	//保存 
 	$scope.save=function(){				
@@ -49,7 +53,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -63,7 +67,7 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
@@ -75,6 +79,32 @@ app.controller('typeTemplateController' ,function($scope,$controller   ,typeTemp
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
-    
+	};
+	//品牌下拉列表数据查询
+	$scope.brandList={data:[]};
+	$scope.findBrandList=function () {
+		brandService.findBrandList().success(function (response) {
+            $scope.brandList={data:response};
+        })
+    };
+
+    //规格下拉列表数据查询
+    $scope.specList={data:[]};
+    $scope.findSpecList=function () {
+		specificationService.findSpecList().success(function (response) {
+            $scope.specList={data:response};
+        })
+    };
+
+    //增加扩展行
+	$scope.entity={customAttributeItems:[]};
+    $scope.addTableRow=function () {
+        $scope.entity.customAttributeItems.push({});
+    };
+	//删除扩展行
+    $scope.deleTableRow=function (index) {
+        $scope.entity.customAttributeItems.splice(index,1);
+    };
+
+
 });	

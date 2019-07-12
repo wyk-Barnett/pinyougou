@@ -27,5 +27,10 @@ app.service("brandService",function ($http) {
     //按条件查询
     this.search=function (currentPage,pageSize,searchEntity) {
         return $http.post("../brand/search.do?currentPage="+currentPage+"&pageSize="+pageSize ,searchEntity);
+    };
+    //查询产品
+    this.findBrandList=function () {
+       return $http.get("../brand/findBrandList.do");
     }
+
 });
