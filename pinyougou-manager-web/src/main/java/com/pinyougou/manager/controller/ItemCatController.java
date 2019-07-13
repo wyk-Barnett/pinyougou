@@ -107,8 +107,18 @@ public class ItemCatController {
 	 * @return
 	 */
 	@RequestMapping("/search")
-	public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows  ){
+	public PageResult search(@RequestBody TbItemCat itemCat, int page, int rows ){
 		return itemCatService.findPage(itemCat, page, rows);		
+	}
+
+	/**
+	 * 根据上级分类查询商品
+	 * @param parentId 上级id
+	 * @return 商品集合
+	 */
+	@RequestMapping("/findByParentId.do")
+	public List<TbItemCat> findByParentId(Long parentId){
+		return itemCatService.findByParentId(parentId);
 	}
 	
 }

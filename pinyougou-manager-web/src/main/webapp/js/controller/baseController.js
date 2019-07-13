@@ -38,5 +38,5 @@ app.controller("baseController",function($scope){
             value+=json[i][key];
         }
         return value;
-    }
+    };
 });

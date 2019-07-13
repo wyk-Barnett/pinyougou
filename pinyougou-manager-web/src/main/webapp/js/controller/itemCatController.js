@@ -1,5 +1,5 @@
  //控制层 
-app.controller('itemCatController' ,function($scope,$controller   ,itemCatService){	
+app.controller('itemCatController' ,function($scope,$controller,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -10,7 +10,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.list=response;
 			}			
 		);
-	}    
+	};
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -20,7 +20,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	//查询实体 
 	$scope.findOne=function(id){				
@@ -29,27 +29,32 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.entity= response;					
 			}
 		);				
-	}
-	
+	};
+
+    $scope.parentId=0;
 	//保存 
 	$scope.save=function(){				
-		var serviceObject;//服务层对象  				
+		var serviceObject;//服务层对象
+		//将字符串类型的typeId转换为int类型重新赋值
+        $scope.entity.typeId= parseInt($scope.entity.typeId);
+        
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=itemCatService.update( $scope.entity ); //修改  
 		}else{
+			$scope.entity.parentId=$scope.parentId;
 			serviceObject=itemCatService.add( $scope.entity  );//增加 
 		}				
 		serviceObject.success(
 			function(response){
 				if(response.success){
 					//重新查询 
-		        	$scope.reloadList();//重新加载
+		        	$scope.findByParentId($scope.parentId);
 				}else{
 					alert(response.message);
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -63,7 +68,7 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
@@ -75,6 +80,41 @@ app.controller('itemCatController' ,function($scope,$controller   ,itemCatServic
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
+
+	//根据上级id查询商品列表
+	$scope.findByParentId=function (parentId) {
+		$scope.parentId=parentId;
+        itemCatService.findByParentId(parentId).success(function (response) {
+			$scope.list=response;
+        })
+    };
+
+	//控制面包屑导航条
+	$scope.grade=1;
+	$scope.setGrade=function (value) {
+        $scope.grade=value;
+    };
+	$scope.selectList=function (p_entity) {
+		if ($scope.grade==1){
+			$scope.entity_1=null;
+			$scope.entity_2=null;
+		}
+        if ($scope.grade==2){
+            $scope.entity_1=p_entity;
+            $scope.entity_2=null;
+        }
+        if ($scope.grade==3){
+            $scope.entity_2=p_entity;
+        }
+        $scope.findByParentId(p_entity.id);
+    };
+
+	$scope.options={data:[]};
+	$scope.findTypes=function () {
+        typeTemplateService.findAllId().success(function (response) {
+            $scope.options={data:response};
+        })
+    };
     
 });	

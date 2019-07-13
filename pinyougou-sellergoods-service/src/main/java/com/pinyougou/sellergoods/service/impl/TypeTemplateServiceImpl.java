@@ -108,4 +108,15 @@ public class TypeTemplateServiceImpl implements TypeTemplateService {
 		Page<TbTypeTemplate> page= (Page<TbTypeTemplate>)typeTemplateMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
+
+	@Override
+	public List<Map> findAllId() {
+		List<Map> list = typeTemplateMapper.findAllId();
+		for (Map map : list) {
+			long text = (long) map.get("text");
+			String textStr = text+"";
+			map.put("text",textStr);
+		}
+		return list;
+	}
 }

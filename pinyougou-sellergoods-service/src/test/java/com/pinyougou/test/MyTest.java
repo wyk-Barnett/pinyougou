@@ -1,6 +1,8 @@
 package com.pinyougou.test;
 
 import com.pinyougou.mapper.TbBrandMapper;
+import com.pinyougou.mapper.TbSpecificationMapper;
+import com.pinyougou.mapper.TbTypeTemplateMapper;
 import com.pinyougou.pojo.TbBrand;
 import com.pinyougou.pojo.TbBrandExample;
 import org.junit.Test;
@@ -11,6 +13,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangyangkun
@@ -22,6 +25,8 @@ public class MyTest {
 
     @Autowired
     private TbBrandMapper brandMapper;
+    @Autowired
+    private TbTypeTemplateMapper tbTypeTemplateMapper;
     @Test
     public void test(){
         TbBrandExample example = new TbBrandExample();
@@ -33,5 +38,19 @@ public class MyTest {
         criteria.andIdIn(list);
         List<TbBrand> brandList = brandMapper.selectByExample(example);
         System.out.println(brandList);
+    }
+
+    @Test
+    public void test2(){
+        List<Map> list = tbTypeTemplateMapper.findAllId();
+        System.out.println(list);
+    }
+
+    @Autowired
+    private TbSpecificationMapper specificationMapper;
+    @Test
+    public void test3(){
+        List<Map> list = specificationMapper.selectOptionList();
+        System.out.println(list);
     }
 }
