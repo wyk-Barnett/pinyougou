@@ -37,7 +37,7 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService,t
 		var serviceObject;//服务层对象
 		//将字符串类型的typeId转换为int类型重新赋值
         $scope.entity.typeId= parseInt($scope.entity.typeId);
-        
+
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=itemCatService.update( $scope.entity ); //修改  
 		}else{
