@@ -51,7 +51,7 @@ app.controller('sellerController' ,function($scope,$controller   ,sellerService)
 		);				
 	};
 
-    //保存
+    //商家注册保存
     $scope.add=function(){
         sellerService.add($scope.entity).success(
             function(response){

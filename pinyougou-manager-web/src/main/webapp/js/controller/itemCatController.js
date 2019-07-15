@@ -28,7 +28,7 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService,t
 			function(response){
 				$scope.entity= response;					
 			}
-		);				
+		);
 	};
 
     $scope.parentId=0;
@@ -36,8 +36,6 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService,t
 	$scope.save=function(){				
 		var serviceObject;//服务层对象
 		//将字符串类型的typeId转换为int类型重新赋值
-        $scope.entity.typeId= parseInt($scope.entity.typeId);
-
 		if($scope.entity.id!=null){//如果有ID
 			serviceObject=itemCatService.update( $scope.entity ); //修改  
 		}else{
@@ -55,15 +53,28 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService,t
 			}		
 		);				
 	};
-	
-	 
+
+	//判断下级是否有商品,如果没有,取消复选框的勾选,并在selectIds数组中删除所选id
+	$scope.findChild=function($event,id){
+        itemCatService.findByParentId(id).success(function (response) {
+        	if (response != null && response.length>0){
+        		//有下级在selectIds数组中删除所选id
+                var index = $scope.selectIds.indexOf(id);
+                $scope.selectIds.splice(index,1);
+                //取消复选框的勾选
+                $event.target.checked=false;
+			}
+		})
+	};
+
+
 	//批量删除 
 	$scope.dele=function(){			
 		//获取选中的复选框			
 		itemCatService.dele( $scope.selectIds ).success(
 			function(response){
 				if(response.success){
-					$scope.reloadList();//刷新列表
+                    $scope.findByParentId($scope.parentId);//刷新当前父id下的列表
 					$scope.selectIds=[];
 				}						
 			}		

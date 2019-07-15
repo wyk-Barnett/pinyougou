@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller   ,goodsService){	
+app.controller('goodsController' ,function($scope,$controller,goodsService,uploadService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -10,7 +10,7 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				$scope.list=response;
 			}			
 		);
-	}    
+	};
 	
 	//分页
 	$scope.findPage=function(page,rows){			
@@ -20,7 +20,7 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
 	
 	//查询实体 
 	$scope.findOne=function(id){				
@@ -29,27 +29,24 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				$scope.entity= response;					
 			}
 		);				
-	}
+	};
 	
 	//保存 
-	$scope.save=function(){				
-		var serviceObject;//服务层对象  				
-		if($scope.entity.id!=null){//如果有ID
-			serviceObject=goodsService.update( $scope.entity ); //修改  
-		}else{
-			serviceObject=goodsService.add( $scope.entity  );//增加 
-		}				
-		serviceObject.success(
+	$scope.add=function(){
+		$scope.entity.goodsDesc.introduction=editor.html();
+        goodsService.add( $scope.entity).success(
 			function(response){
 				if(response.success){
-					//重新查询 
-		        	$scope.reloadList();//重新加载
+					alert(response.message);
+		        	$scope.entity={};
+		        	//清空副文本编辑器
+                    editor.html("");
 				}else{
 					alert(response.message);
 				}
 			}		
 		);				
-	}
+	};
 	
 	 
 	//批量删除 
@@ -63,7 +60,7 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				}						
 			}		
 		);				
-	}
+	};
 	
 	$scope.searchEntity={};//定义搜索对象 
 	
@@ -75,6 +72,18 @@ app.controller('goodsController' ,function($scope,$controller   ,goodsService){
 				$scope.paginationConf.totalItems=response.total;//更新总记录数
 			}			
 		);
-	}
+	};
+
+
+	$scope.uploadFile=function () {
+		uploadService.uploadFile().success(function (response) {
+			alert(response.message);
+			if (response.success){
+				$scope.image_entity.url=response.message;
+			}else {
+				alert(response.message);
+			}
+        })
+    };
     
 });	

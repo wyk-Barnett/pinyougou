@@ -31,11 +31,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         //构建角色列表并返回
         List<GrantedAuthority> grantAuths = new ArrayList<>();
         grantAuths.add(new SimpleGrantedAuthority("ROLE_SELLER"));
-
         TbSeller seller = sellerService.findOne(username);
-        String allStatus = "1";
-        if (seller!=null && allStatus.equals(seller.getStatus())){
-            return new User(username, seller.getPassword(),grantAuths);
+        String trueStatus = "1";
+        if (seller!=null){
+            return new User(username, seller.getPassword(),trueStatus.equals(seller.getStatus())?true:false,true,true,true,grantAuths);
         }else {
             throw new UsernameNotFoundException(username+"用户未查找到异常");
         }

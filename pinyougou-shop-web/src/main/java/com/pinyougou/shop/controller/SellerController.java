@@ -26,7 +26,7 @@ public class SellerController {
 	
 	/**
 	 * 返回全部列表
-	 * @return
+	 * @return List
 	 */
 	@RequestMapping("/findAll")
 	public List<TbSeller> findAll(){			
@@ -36,7 +36,7 @@ public class SellerController {
 	
 	/**
 	 * 返回全部列表
-	 * @return
+	 * @return PageResult
 	 */
 	@RequestMapping("/findPage")
 	public PageResult  findPage(int page,int rows){			
@@ -45,8 +45,8 @@ public class SellerController {
 	
 	/**
 	 * 增加
-	 * @param seller
-	 * @return
+	 * @param seller 商家对象
+	 * @return 操作结果
 	 */
 	@RequestMapping("/add")
 	public Result add(@RequestBody TbSeller seller){
@@ -64,8 +64,8 @@ public class SellerController {
 	
 	/**
 	 * 修改
-	 * @param seller
-	 * @return
+	 * @param seller 商家对象
+	 * @return 操作结果
 	 */
 	@RequestMapping("/update")
 	public Result update(@RequestBody TbSeller seller){
@@ -80,8 +80,8 @@ public class SellerController {
 	
 	/**
 	 * 获取实体
-	 * @param id
-	 * @return
+	 * @param id sellerid
+	 * @return seller对象
 	 */
 	@RequestMapping("/findOne")
 	public TbSeller findOne(String id){
@@ -90,8 +90,8 @@ public class SellerController {
 	
 	/**
 	 * 批量删除
-	 * @param ids
-	 * @return
+	 * @param ids id数组
+	 * @return Result
 	 */
 	@RequestMapping("/delete")
 	public Result delete(String [] ids){
@@ -106,10 +106,10 @@ public class SellerController {
 	
 		/**
 	 * 查询+分页
-	 * @param seller
-	 * @param page
-	 * @param rows
-	 * @return
+	 * @param seller 商家
+	 * @param page 当前页
+	 * @param rows 每页显示条数
+	 * @return 返回PageResult对象
 	 */
 	@RequestMapping("/search")
 	public PageResult search(@RequestBody TbSeller seller, int page, int rows  ){
