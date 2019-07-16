@@ -4,7 +4,7 @@ app.service("uploadService",function ($http) {
     this.uploadFile=function () {
         var formdata = new FormData();
         //file 文件上传框的name
-        formdata.append("file",file.files[0]);
+        formdata.append("file",document.getElementById("file").files[0]);
         return $http({
             url:"../upload.do",
             method:"post",

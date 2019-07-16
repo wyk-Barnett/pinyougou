@@ -19,16 +19,20 @@ public class UploadController {
 
     @RequestMapping("/upload.do")
     public Result upload(MultipartFile file){
-        String fileOriginalFilename = file.getOriginalFilename();
-        String extName = fileOriginalFilename.substring(fileOriginalFilename.lastIndexOf(".") + 1);
-        try {
-            FastDFSClient client = new FastDFSClient("classpath:config/fdfs_client.conf");
-            String fileId = client.uploadFile(file.getBytes(), extName);
-            //图片完整地址
-            String url = file_server_url+fileId;
-            return new Result(true,url);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (file!=null){
+            String fileOriginalFilename = file.getOriginalFilename();
+            String extName = fileOriginalFilename.substring(fileOriginalFilename.lastIndexOf(".") + 1);
+            try {
+                FastDFSClient client = new FastDFSClient("classpath:config/fdfs_client.conf");
+                String fileId = client.uploadFile(file.getBytes(), extName);
+                //图片完整地址
+                String url = file_server_url+fileId;
+                return new Result(true,url);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return new Result(false,"上传失败");
+            }
+        }else {
             return new Result(false,"上传失败");
         }
     }

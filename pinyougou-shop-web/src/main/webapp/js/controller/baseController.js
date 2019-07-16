@@ -27,7 +27,7 @@ app.controller("baseController",function($scope){
             $scope.selectIds.splice(index,1);
         }
     };
-
+    //根据key获取json数据中的value,并进行拼接,返回拼接后的字符串
     $scope.formatJSON=function (jsonStr, key) {
         var json = JSON.parse(jsonStr);
         var value = "";
@@ -38,5 +38,14 @@ app.controller("baseController",function($scope){
             value+=json[i][key];
         }
         return value;
+    };
+    //根据key在集合中查找value
+    $scope.searchObjectByKey=function (list, key, value) {
+        for (var i = 0; i < list.length; i++) {
+            if (list[i][key]==value){
+                return list[i];
+            }
+        }
+        return null;
     }
 });
