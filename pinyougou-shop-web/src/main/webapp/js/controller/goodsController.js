@@ -1,5 +1,5 @@
  //控制层 
-app.controller('goodsController' ,function($scope,$controller,goodsService,uploadService,itemCatService,typeTemplateService){
+app.controller('goodsController' ,function($scope,$controller,$location,goodsService,uploadService,itemCatService,typeTemplateService){
 	
 	$controller('baseController',{$scope:$scope});//继承
 	
@@ -23,12 +23,19 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
 	};
 	
 	//查询实体 
-	$scope.findOne=function(id){				
-		goodsService.findOne(id).success(
-			function(response){
-				$scope.entity= response;					
-			}
-		);				
+	$scope.findOne=function(){
+		var id = $location.search()["id"];
+		if (id!=null){
+            goodsService.findOne(id).success(
+                function(response){
+                    $scope.entity= response;
+                    editor.html($scope.entity.goodsDesc.introduction);
+                    $scope.entity.goodsDesc.itemImages=JSON.parse($scope.entity.goodsDesc.itemImages);
+                    $scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.entity.goodsDesc.customAttributeItems);
+                    $scope.entity.goodsDesc.specificationItems=JSON.parse($scope.entity.goodsDesc.specificationItems);
+                }
+            );
+        }
 	};
 	
 	//保存 
@@ -54,8 +61,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
 		$scope.entity.goodsDesc.itemImages.splice(index,1);
 	};
 	
-	$scope.searchEntity={};//定义搜索对象 
-	
+	$scope.searchEntity={};//定义搜索对象
 	//搜索
 	$scope.search=function(page,rows){			
 		goodsService.search(page,rows,$scope.searchEntity).success(
@@ -65,6 +71,8 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
 			}			
 		);
 	};
+
+	$scope.status=["未审核","已审核","审核未通过","已关闭"];
 
 
 	$scope.uploadFile=function () {
@@ -112,7 +120,10 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
         typeTemplateService.findOne(newValue).success(function (response) {
 			$scope.typeTeplate=response;
             $scope.typeTeplate.brandIds=JSON.parse($scope.typeTeplate.brandIds);
-            $scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.typeTeplate.customAttributeItems);
+            if($location.search()["id"] == null) {
+            	//增加商品
+                $scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.typeTeplate.customAttributeItems);
+			}
         });
         typeTemplateService.findSpecList(newValue).success(function (response) {
 			$scope.specList=response;
@@ -148,7 +159,7 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
             $scope.entity.itemList = addColumn($scope.entity.itemList,items[i].attributeName,items[i].attributeValue);
         }
     };
-	//克隆往集合添加
+	//深克隆,往集合添加
 	addColumn=function (list, columnName, columnValue) {
 		var newList = [];
         for (var i = 0; i < list.length; i++) {
@@ -160,6 +171,30 @@ app.controller('goodsController' ,function($scope,$controller,goodsService,uploa
             }
         }
         return newList;
+    };
+
+    $scope.itemCatList=[];
+    $scope.findItemCatList=function () {
+		itemCatService.findAll().success(function (response) {
+            for (var i = 0; i < response.length; i++) {
+                $scope.itemCatList[response[i].id]=response[i].name;
+            }
+        });
+    };
+
+    //判断返回的数据中心是否有该规格,如果有,则勾选此规格选项的复选框
+    $scope.checkAttributeValue=function (specName,optionName) {
+        var items = $scope.entity.goodsDesc.specificationItems;
+		var obiect = $scope.searchObjectByKey(items,"attributeName",specName);
+		if (obiect!=null){
+			if (obiect.attributeValue.indexOf(optionName)>=0){
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
     }
 
 });	
