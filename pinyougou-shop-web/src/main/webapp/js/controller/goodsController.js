@@ -113,7 +113,9 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 			}else {
 				alert(response.message);
 			}
-        })
+        }).error(function () {
+            alert("上传出错");
+        });
     };
 
 	$scope.entity={goods:{},goodsDesc:{itemImages:[],specificationItems:[]}};
