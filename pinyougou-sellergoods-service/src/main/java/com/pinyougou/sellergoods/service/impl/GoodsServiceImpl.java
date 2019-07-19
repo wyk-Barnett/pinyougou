@@ -2,20 +2,16 @@ package com.pinyougou.sellergoods.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import com.alibaba.fastjson.JSON;
 import com.pinyougou.mapper.*;
-import com.pinyougou.pojo.TbGoodsDesc;
-import com.pinyougou.pojo.TbItem;
+import com.pinyougou.pojo.*;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.sellergoods.service.GoodsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.alibaba.dubbo.config.annotation.Service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import com.pinyougou.pojo.TbGoods;
-import com.pinyougou.pojo.TbGoodsExample;
 import com.pinyougou.pojo.TbGoodsExample.Criteria;
 
 import entity.PageResult;
@@ -24,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 /**
  * 服务实现层
  * @author Administrator
- *
  */
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -69,9 +64,15 @@ public class GoodsServiceImpl implements GoodsService {
 	public void add(Goods goods) {
 		//设置状态:未审核
 		goods.getGoods().setAuditStatus("0");
+		//设置默认上架
+		goods.getGoods().setIsMarketable("1");
 		goodsMapper.insert(goods.getGoods());
 		goods.getGoodsDesc().setGoodsId(goods.getGoods().getId());
 		goodsDescMapper.insert(goods.getGoodsDesc());
+		insertItem(goods);
+	}
+
+	private void insertItem(Goods goods){
 		String isEnableSpec ="1";
 		//判断是否启用规格
 		if (isEnableSpec.equals(goods.getGoods().getIsEnableSpec())) {
@@ -142,8 +143,15 @@ public class GoodsServiceImpl implements GoodsService {
 	 * 修改
 	 */
 	@Override
-	public void update(TbGoods goods){
-		goodsMapper.updateByPrimaryKey(goods);
+	public void update(Goods goods){
+		goodsMapper.updateByPrimaryKey(goods.getGoods());
+		goodsDescMapper.updateByPrimaryKey(goods.getGoodsDesc());
+
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo(goods.getGoods().getId());
+		itemMapper.deleteByExample(example);
+		insertItem(goods);
 	}	
 	
 	/**
@@ -154,12 +162,20 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public Goods findOne(Long id){
 		Goods goods = new Goods();
+
 		TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
 		goods.setGoods(tbGoods);
+
 		TbGoodsDesc tbGoodsDesc = goodsDescMapper.selectByPrimaryKey(id);
 		goods.setGoodsDesc(tbGoodsDesc);
-		return goods;
 
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdEqualTo(id);
+		List<TbItem> items = itemMapper.selectByExample(example);
+		goods.setItemList(items);
+
+		return goods;
 	}
 
 	/**
@@ -168,8 +184,10 @@ public class GoodsServiceImpl implements GoodsService {
 	@Override
 	public void delete(Long[] ids) {
 		for(Long id:ids){
-			goodsMapper.deleteByPrimaryKey(id);
-		}		
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setIsDelete("1");
+			goodsMapper.updateByPrimaryKey(tbGoods);
+		}
 	}
 	
 	
@@ -179,6 +197,7 @@ public class GoodsServiceImpl implements GoodsService {
 		
 		TbGoodsExample example=new TbGoodsExample();
 		Criteria criteria = example.createCriteria();
+		criteria.andIsDeleteIsNull();
 		
 		if(goods!=null){			
 			if(goods.getSellerId()!=null && goods.getSellerId().length()>0){
@@ -211,5 +230,23 @@ public class GoodsServiceImpl implements GoodsService {
 		Page<TbGoods> page= (Page<TbGoods>)goodsMapper.selectByExample(example);		
 		return new PageResult(page.getTotal(), page.getResult());
 	}
-	
+
+	@Override
+	public void updateStatus(Long[] ids, String status) {
+		for (Long id : ids) {
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setAuditStatus(status);
+			goodsMapper.updateByPrimaryKey(tbGoods);
+		}
+	}
+
+	@Override
+	public void updateIsMarketables(Long[] ids, String marketable) {
+		for (Long id : ids) {
+			TbGoods tbGoods = goodsMapper.selectByPrimaryKey(id);
+			tbGoods.setIsMarketable(marketable);
+			goodsMapper.updateByPrimaryKey(tbGoods);
+		}
+	}
+
 }

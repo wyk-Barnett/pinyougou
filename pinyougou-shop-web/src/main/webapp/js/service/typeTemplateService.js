@@ -29,7 +29,7 @@ app.service('typeTemplateService',function($http){
 	this.search=function(page,rows,searchEntity){
 		return $http.post('../typeTemplate/search.do?page='+page+"&rows="+rows, searchEntity);
 	};
-	//查询所有你模板id
+	//查询所有模板id
 	this.findAllId=function () {
 		return $http.get("../typeTemplate/findAllId.do");
     };

@@ -30,16 +30,46 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
                 function(response){
                     $scope.entity= response;
                     editor.html($scope.entity.goodsDesc.introduction);
+
                     $scope.entity.goodsDesc.itemImages=JSON.parse($scope.entity.goodsDesc.itemImages);
                     $scope.entity.goodsDesc.customAttributeItems=JSON.parse($scope.entity.goodsDesc.customAttributeItems);
                     $scope.entity.goodsDesc.specificationItems=JSON.parse($scope.entity.goodsDesc.specificationItems);
+
+                    for (var i = 0; i < $scope.entity.itemList.length; i++) {
+                        $scope.entity.itemList[i].spec  = JSON.parse($scope.entity.itemList[i].spec);
+                    }
                 }
             );
         }
 	};
+
+    //保存
+    $scope.save=function(){
+        $scope.entity.goodsDesc.introduction=editor.html();
+        var serviceObject;//服务层对象
+        if($scope.entity.goods.id!=null){//如果有ID
+            serviceObject=goodsService.update( $scope.entity ); //修改
+        }else{
+            serviceObject=goodsService.add( $scope.entity );//增加
+        }
+        serviceObject.success(
+            function(response){
+                if(response.success){
+                    alert(response.message);
+                    alert("保存成功");
+                    // $scope.entity={};
+                    // //清空副文本编辑器
+                    // editor.html("");
+					location.href="goods.html";
+                }else{
+                    alert(response.message);
+                }
+            }
+        );
+    };
 	
 	//保存 
-	$scope.add=function(){
+	/*$scope.add=function(){
 		$scope.entity.goodsDesc.introduction=editor.html();
         goodsService.add( $scope.entity).success(
 			function(response){
@@ -53,7 +83,7 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 				}
 			}		
 		);				
-	};
+	};*/
 	
 	 
 	//根据索引删除列表数组中的图片
@@ -72,6 +102,7 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
 		);
 	};
 
+    //状态定义
 	$scope.status=["未审核","已审核","审核未通过","已关闭"];
 
 
@@ -173,6 +204,7 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
         return newList;
     };
 
+    //读取商品分类
     $scope.itemCatList=[];
     $scope.findItemCatList=function () {
 		itemCatService.findAll().success(function (response) {
@@ -186,15 +218,25 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
     $scope.checkAttributeValue=function (specName,optionName) {
         var items = $scope.entity.goodsDesc.specificationItems;
 		var obiect = $scope.searchObjectByKey(items,"attributeName",specName);
-		if (obiect!=null){
-			if (obiect.attributeValue.indexOf(optionName)>=0){
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
+		//先判断规格名称在specificationItems数组中是否存在
+		if (obiect!=null) {
+            //判断规格选项是否在attributeValue数组中存在
+			//只有规格名称有,并且attributeValue数组中存在规格选项,才返回true
+            return obiect.attributeValue.indexOf(optionName) >= 0
+        }
+		return false;
+    };
+    //商品上下架 marketable 1代表上架 0代表下架
+    $scope.marketables=['已下架','已上架'];
+    $scope.updateIsMarketables=function (marketable) {
+        goodsService.updateIsMarketables($scope.selectIds,marketable).success(function (response) {
+            if (response.success) {
+                alert(response.message);
+                $scope.reloadList();
+            }else {
+                alert(response.message);
+            }
+        });
     }
 
 });	

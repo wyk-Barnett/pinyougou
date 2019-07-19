@@ -68,7 +68,14 @@ public class GoodsController {
 	 * @return
 	 */
 	@RequestMapping("/update")
-	public Result update(@RequestBody TbGoods goods){
+	public Result update(@RequestBody Goods goods){
+		//判断当前登录用户 与 修改商品信息的用户 和 原商品用户是否是同一人 如过不是则返回非法操作
+		String nowSellerId = SecurityContextHolder.getContext().getAuthentication().getName();
+		String oldSellerId = goodsService.findOne(goods.getGoods().getId()).getGoods().getSellerId();
+		String newSellerId = goods.getGoods().getSellerId();
+		if (!nowSellerId.equals(oldSellerId) || !nowSellerId.equals(newSellerId)){
+			return new Result(false, "非法操作");
+		}
 		try {
 			goodsService.update(goods);
 			return new Result(true, "修改成功");
@@ -116,6 +123,16 @@ public class GoodsController {
 		String sellerId = SecurityContextHolder.getContext().getAuthentication().getName();
 		goods.setSellerId(sellerId);
 		return goodsService.findPage(goods, page, rows);		
+	}
+	@RequestMapping("/updateIsMarketables")
+	public Result updateIsMarketables(Long [] ids,String marketable ){
+		try {
+			goodsService.updateIsMarketables(ids,marketable);
+			return new Result(true,"修改成功");
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Result(false,"修改失败");
+		}
 	}
 	
 }

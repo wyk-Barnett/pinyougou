@@ -51,7 +51,7 @@ app.controller('itemCatController' ,function($scope,$controller,itemCatService,t
 					alert(response.message);
 				}
 			}		
-		);				
+		);
 	};
 
 	//判断下级是否有商品,如果没有,取消复选框的勾选,并在selectIds数组中删除所选id

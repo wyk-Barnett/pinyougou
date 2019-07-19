@@ -13,6 +13,7 @@ import com.pinyougou.pojo.TbSellerExample;
 import com.pinyougou.pojo.TbSellerExample.Criteria;
 
 import entity.PageResult;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 服务实现层
@@ -20,6 +21,7 @@ import entity.PageResult;
  *
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class SellerServiceImpl implements SellerService {
 
 	@Autowired

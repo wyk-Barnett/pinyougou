@@ -9,6 +9,7 @@ import com.pinyougou.pojo.TbBrandExample;
 import com.pinyougou.sellergoods.service.BrandService;
 import entity.PageResult;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -19,6 +20,7 @@ import java.util.Map;
  * @date 2019/7/8 0008 19:47
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class BrandServiceImpl implements BrandService {
 
     @Autowired
