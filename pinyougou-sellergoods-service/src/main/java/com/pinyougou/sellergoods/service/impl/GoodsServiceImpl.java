@@ -144,6 +144,8 @@ public class GoodsServiceImpl implements GoodsService {
 	 */
 	@Override
 	public void update(Goods goods){
+		//设置默认上架
+		goods.getGoods().setIsMarketable("1");
 		goodsMapper.updateByPrimaryKey(goods.getGoods());
 		goodsDescMapper.updateByPrimaryKey(goods.getGoodsDesc());
 

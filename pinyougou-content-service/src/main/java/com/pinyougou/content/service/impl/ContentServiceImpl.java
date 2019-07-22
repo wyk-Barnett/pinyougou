@@ -131,7 +131,7 @@ public class ContentServiceImpl implements ContentService {
 			//状态启用
 			criteria.andStatusEqualTo("1");
 			//按照sort_order字段排序
-			example.setOrderByClause("sort_order");
+			example.setOrderByClause("sort_order asc");
 			list = contentMapper.selectByExample(example);
 			redisTemplate.boundHashOps("content").put(categoryId,list);
 			System.out.println("从数据库中查数据,并放入缓存");
