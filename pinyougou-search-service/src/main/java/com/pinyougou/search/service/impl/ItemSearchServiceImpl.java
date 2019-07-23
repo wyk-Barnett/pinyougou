@@ -27,6 +27,11 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    /**
+     * 搜索方法
+     * @param searchMap  {"keywords":"","category":"","brand":"",spec:{},price:""};
+     * @return 返回搜索结果
+     */
     @Override
     public Map search(Map searchMap) {
         Map map = new HashMap();
@@ -40,11 +45,16 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         map.put("categryList",categryList);
 
         //3.查询品牌和规格列表
-        if (categryList.size()>0){
-            Map brandAndSpecList = searchBrandAndSpecList(categryList.get(0));
+        String category = (String) searchMap.get("category");
+        if (!"".equals(category)){
+            Map brandAndSpecList = searchBrandAndSpecList(category);
             map.putAll(brandAndSpecList);
+        }else{
+            if (categryList.size()>0){
+                Map brandAndSpecList = searchBrandAndSpecList(categryList.get(0));
+                map.putAll(brandAndSpecList);
+            }
         }
-
         return map;
     }
 
@@ -97,32 +107,97 @@ public class ItemSearchServiceImpl implements ItemSearchService {
     }
 
     /**
-     * 高亮查询
+     * 条件查询 高亮
      * @param searchMap 查询条件
      * @return 返回map 便于扩充
      */
     private Map searchList(Map searchMap){
-        Map map = new HashMap();
+        Map map = new HashMap(16);
+        //高亮选项初始化
         HighlightQuery query = new SimpleHighlightQuery();
         //设置需要高亮显示的field
         HighlightOptions highlightOptions = new HighlightOptions().addField("item_title");
-        //前缀
+        //前缀 后缀
         highlightOptions.setSimplePrefix("<span style='color:red'>");
-        //后缀
         highlightOptions.setSimplePostfix("</span>");
         //为查询对象设置为高亮选项
         query.setHighlightOptions(highlightOptions);
 
-        //关键字查询
+        //1.1 关键字查询
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
         query.addCriteria(criteria);
 
-        query.setOffset(0);
-        query.setRows(20);
+        //1.2 按商品分类过滤
+        String category = "category";
+        if (!"".equals(searchMap.get(category))){
+            FilterQuery filterQuery = new SimpleFilterQuery();
+            Criteria filterCriteria = new Criteria("item_category").is(searchMap.get(category));
+            filterQuery.addCriteria(filterCriteria);
+            query.addFilterQuery(filterQuery);
+        }
 
+        //1.3按品牌分类过滤
+        String brand = "brand";
+        if (!"".equals(searchMap.get(brand))){
+            FilterQuery filterQuery = new SimpleFilterQuery();
+            Criteria filterCriteria = new Criteria("item_brand").is(searchMap.get(brand));
+            filterQuery.addCriteria(filterCriteria);
+            query.addFilterQuery(filterQuery);
+        }
+
+        //1.4按规格过滤
+        String spec = "spec";
+        if (searchMap.get(spec) != null){
+            Map<String,String> specMap = (Map<String,String>) searchMap.get(spec);
+            for (String key:specMap.keySet()) {
+                FilterQuery filterQuery = new SimpleFilterQuery();
+                Criteria filterCriteria = new Criteria("item_spec_"+key).is(specMap.get(key));
+                filterQuery.addCriteria(filterCriteria);
+                query.addFilterQuery(filterQuery);
+            }
+        }
+
+        //1.5按价格过滤
+        String price = "price";
+        if (!"".equals(searchMap.get(price))){
+            String priceStr = (String) searchMap.get(price);
+            String[] prices = priceStr.split("-");
+            //根据前端定义 最低价格为0  最高为*
+            String lowPrice = "0";
+            String highPrice = "*";
+            //设置最低价格,如果传过来的是0 则最低价格没有限制
+            if (!lowPrice.equals(prices[0])){
+                FilterQuery filterQuery = new SimpleFilterQuery();
+                Criteria filterCriteria = new Criteria("item_price").greaterThanEqual(prices[0]);
+                filterQuery.addCriteria(filterCriteria);
+                query.addFilterQuery(filterQuery);
+            }
+            //设置最高价格,如果传过来的是* 则最高价格没有限制
+            if (!highPrice.equals(prices[1])){
+                FilterQuery filterQuery = new SimpleFilterQuery();
+                Criteria filterCriteria = new Criteria("item_price").lessThanEqual(prices[1]);
+                filterQuery.addCriteria(filterCriteria);
+                query.addFilterQuery(filterQuery);
+            }
+        }
+
+        //1.6 分页
+        Integer pageNum = (Integer) searchMap.get("pageNum");
+        if (pageNum==null){
+            pageNum = 1;
+        }
+        Integer pageSize = (Integer) searchMap.get("pageSize");
+        if (pageSize == null){
+            pageSize = 20;
+        }
+        query.setOffset((pageNum-1)*pageSize);
+        query.setRows(pageSize);
+
+
+        // *********************获取高亮结果集******************
         //高亮页对象
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
-
+        //高亮入口集合
         List<HighlightEntry<TbItem>> highlighted = page.getHighlighted();
         for (HighlightEntry<TbItem> entry : highlighted) {
             List<HighlightEntry.Highlight> highlights = entry.getHighlights();
@@ -135,6 +210,8 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         System.out.println(page.getContent());
         map.put("rows",page.getContent());
+        map.put("totalPages",page.getTotalPages());
+        map.put("total",page.getTotalElements());
         return map;
     }
 
