@@ -19,7 +19,7 @@
 
 	</head>
 
-	<body ng-app="pinyougou" ng-controller="searchController">
+	<body ng-app="pinyougou" ng-controller="searchController" ng-init="loadKeywords()">
 		<!-- 头部栏位 -->
 		<!--页面顶部-->
 		<div id="nav-bottom">
@@ -83,7 +83,7 @@
 										<!--searchAutoComplete-->
 										<div class="input-append">
 											<input type="text" id="autocomplete" type="text" class="input-error input-xxlarge" ng-model="searchMap.keywords"/>
-											<button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="search();searchMap.pageNum=1" >搜索</button>
+											<button class="sui-btn btn-xlarge btn-danger" type="button" ng-click="searchMap.pageNum=1;search()" >搜索</button>
 										</div>
 									</form>
 								</div>
@@ -175,7 +175,7 @@
 					</div>
 					<div class="fl ext"></div>
 				</div>
-				<div class="type-wrap logo" ng-if="resultMap.brandList!=null && searchMap.brand==''">
+				<div class="type-wrap logo" ng-if="resultMap.brandList!=null && searchMap.brand=='' && keywordsIsBrand()==false">
 					<div class="fl key brand">品牌</div>
 					<div class="value logos">
 						<ul class="logo-list">
@@ -259,19 +259,25 @@
 					<div class="navbar-inner filter">
 						<ul class="sui-nav">
 							<li class="active">
-								<a href="#">综合</a>
+								<a href="#" ng-click="sortSearch('','')">综合</a>
 							</li>
 							<li>
 								<a href="#">销量</a>
 							</li>
 							<li>
-								<a href="#">新品</a>
+								<a href="#" ng-click="sortSearch('updatetime','DESC')">新品</a>
 							</li>
 							<li>
 								<a href="#">评价</a>
 							</li>
-							<li>
-								<a href="#">价格</a>
+							<li ng-if="searchMap.sort=='DESC' && searchMap.sortField=='price'">
+								<a href="#" ng-click="sortSearch('price','ASC')">价格↑</a>
+							</li>
+							<li ng-if="searchMap.sortField!='price'">
+								<a href="#" ng-click="sortSearch('price','ASC')">价格</a>
+							</li>
+							<li ng-if="searchMap.sort=='ASC' && searchMap.sortField=='price'">
+								<a href="#" ng-click="sortSearch('price','DESC')">价格↓</a>
 							</li>
 						</ul>
 					</div>
@@ -318,7 +324,7 @@
 								<span>...</span>
 							</li>
 
-							<li ng-repeat="page in pageLabel" class="{{isCureentPage(page)?'active':''}}">
+							<li ng-repeat="page in pageLabel" class="{{searchMap.pageNum==page?'active':''}}">
 								<a href="#" ng-click="queryForPage(page)">{{page}}</a>
 							</li>
 
@@ -332,7 +338,7 @@
 						</ul>
 						<div><span>共{{resultMap.totalPages}}页&nbsp;</span><span>
 						  	到第<input  type="text" class="page-num" ng-model="searchMap.pageNum" style="width: 25px;height: 15px">页
-							<button class="page-confirm" ng-click="queryForPage(searchMap.pageNum)">确定</button></span>
+							<a href="#" class="page-confirm" ng-click="queryForPage(searchMap.pageNum)">确定</a></span>
 						</div>
 					</div>
 				</div>

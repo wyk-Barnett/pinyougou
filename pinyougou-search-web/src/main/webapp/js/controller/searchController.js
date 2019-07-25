@@ -1,7 +1,7 @@
-app.controller("searchController",function ($scope, searchService) {
+app.controller("searchController",function ($scope,$location, searchService) {
 
     //定义搜索对象的结构  category:商品分类
-    $scope.searchMap={"keywords":"","category":"","brand":"",spec:{},price:"",pageNum:1,pageSize:40};
+    $scope.searchMap={"keywords":"","category":"","brand":"",spec:{},price:"",pageNum:1,pageSize:40,sort:"",sortField:""};
 
     //搜索方法
     $scope.search=function () {
@@ -12,6 +12,7 @@ app.controller("searchController",function ($scope, searchService) {
         })
     };
 
+    //构建分页栏
     buildPageLabel=function(){
         $scope.pageLabel=[];
         var firstPage = 1;
@@ -41,6 +42,7 @@ app.controller("searchController",function ($scope, searchService) {
         }
     };
 
+    //点击页码跳转
     $scope.queryForPage=function(pageNum){
         if (pageNum < 1 || pageNum > $scope.resultMap.totalPages) {
             return;
@@ -88,15 +90,29 @@ app.controller("searchController",function ($scope, searchService) {
             return false;
         }
     };
-    //判断是否为当前页
-    $scope.isCureentPage=function (page) {
-        if (page==$scope.searchMap.pageNum){
-            return true;
-        } else {
-            return false;
+
+    //排序搜索
+    $scope.sortSearch=function (sortField,sort) {
+        $scope.searchMap.sortField=sortField;
+        $scope.searchMap.sort=sort;
+        $scope.search();
+    };
+
+    $scope.keywordsIsBrand=function () {
+        var keywords = $scope.searchMap.keywords;
+        for (var i = 0; i < $scope.resultMap.brandList.length; i++) {
+            var brand = $scope.resultMap.brandList[i].text;
+            if (keywords.indexOf(brand)>=0) {
+                return true;
+            }
         }
+        return false;
+    };
+
+    //加载关键字
+    $scope.loadKeywords=function () {
+        $scope.searchMap.keywords=$location.search()["keywords"];
+        $scope.search();
     }
-
-
 
 });

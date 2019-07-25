@@ -32,7 +32,7 @@ public class SolrUtil {
         List<TbItem> itemList = itemMapper.selectByExample(example);
         System.out.println("----SKU商品列表---");
         for (TbItem item : itemList) {
-            System.out.println(item.getId()+"="+item.getTitle());
+//            System.out.println(item.getId()+"="+item.getTitle());
             Map map = JSON.parseObject(item.getSpec(), Map.class);
             item.setSpecMap(map);
         }

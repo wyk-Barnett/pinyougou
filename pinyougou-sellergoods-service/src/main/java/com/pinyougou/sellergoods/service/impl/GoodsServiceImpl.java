@@ -1,4 +1,5 @@
 package com.pinyougou.sellergoods.service.impl;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -251,4 +252,13 @@ public class GoodsServiceImpl implements GoodsService {
 		}
 	}
 
+	@Override
+	public List<TbItem> findItemListByGoodsIdsAndStutas(Long[] ids, String status) {
+		TbItemExample example = new TbItemExample();
+		TbItemExample.Criteria criteria = example.createCriteria();
+		criteria.andGoodsIdIn(Arrays.asList(ids));
+		criteria.andStatusEqualTo(status);
+		List<TbItem> itemList = itemMapper.selectByExample(example);
+		return itemList;
+	}
 }

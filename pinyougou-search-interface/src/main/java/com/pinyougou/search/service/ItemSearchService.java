@@ -1,5 +1,6 @@
 package com.pinyougou.search.service;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -13,4 +14,16 @@ public interface ItemSearchService {
      * @return
      */
     Map search(Map map);
+
+    /**
+     * 往solr索引库中更新数据
+     * @param list
+     */
+    void importList(List list);
+
+    /**
+     * 删除索引库中数据
+     * @param list 根据goodsid集合
+     */
+    void deleteByGoodsIds(List list);
 }

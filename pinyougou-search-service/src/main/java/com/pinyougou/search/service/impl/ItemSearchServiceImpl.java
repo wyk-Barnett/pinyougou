@@ -5,6 +5,7 @@ import com.pinyougou.pojo.TbItem;
 import com.pinyougou.search.service.ItemSearchService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.solr.core.SolrTemplate;
 import org.springframework.data.solr.core.query.*;
@@ -34,6 +35,9 @@ public class ItemSearchServiceImpl implements ItemSearchService {
      */
     @Override
     public Map search(Map searchMap) {
+        String keywords = (String) searchMap.get("keywords");
+        searchMap.put("keywords",keywords.replace(" ", ""));
+
         Map map = new HashMap();
         //1.高亮显示 条件查询
         Map itemList = searchList(searchMap);
@@ -122,29 +126,25 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         highlightOptions.setSimplePostfix("</span>");
         //为查询对象设置为高亮选项
         query.setHighlightOptions(highlightOptions);
-
         //1.1 关键字查询
         Criteria criteria = new Criteria("item_keywords").is(searchMap.get("keywords"));
         query.addCriteria(criteria);
-
         //1.2 按商品分类过滤
         String category = "category";
-        if (!"".equals(searchMap.get(category))){
+        if (!"".equals(searchMap.get(category)) && searchMap.get(category)!= null){
             FilterQuery filterQuery = new SimpleFilterQuery();
             Criteria filterCriteria = new Criteria("item_category").is(searchMap.get(category));
             filterQuery.addCriteria(filterCriteria);
             query.addFilterQuery(filterQuery);
         }
-
         //1.3按品牌分类过滤
         String brand = "brand";
-        if (!"".equals(searchMap.get(brand))){
+        if (!"".equals(searchMap.get(brand)) && searchMap.get(brand) != null){
             FilterQuery filterQuery = new SimpleFilterQuery();
             Criteria filterCriteria = new Criteria("item_brand").is(searchMap.get(brand));
             filterQuery.addCriteria(filterCriteria);
             query.addFilterQuery(filterQuery);
         }
-
         //1.4按规格过滤
         String spec = "spec";
         if (searchMap.get(spec) != null){
@@ -156,7 +156,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
                 query.addFilterQuery(filterQuery);
             }
         }
-
         //1.5按价格过滤
         String price = "price";
         if (!"".equals(searchMap.get(price))){
@@ -180,7 +179,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
                 query.addFilterQuery(filterQuery);
             }
         }
-
         //1.6 分页
         Integer pageNum = (Integer) searchMap.get("pageNum");
         if (pageNum==null){
@@ -192,8 +190,21 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         }
         query.setOffset((pageNum-1)*pageSize);
         query.setRows(pageSize);
-
-
+        //1.7按给定字段排序
+        //排序方式 ASC 升序  DESC 降序
+        String sortValue = (String) searchMap.get("sort");
+        //排序字段
+        String sortField = (String) searchMap.get("sortField");
+        if (!"".equals(sortField) && sortField!=null){
+            if (sortValue.equals("ASC")){
+                Sort sort = new Sort(Sort.Direction.ASC,"item_"+sortField);
+                query.addSort(sort);
+            }
+            if (sortValue.equals("DESC")){
+                Sort sort = new Sort(Sort.Direction.DESC,"item_"+sortField);
+                query.addSort(sort);
+            }
+        }
         // *********************获取高亮结果集******************
         //高亮页对象
         HighlightPage<TbItem> page = solrTemplate.queryForHighlightPage(query, TbItem.class);
@@ -201,7 +212,6 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         List<HighlightEntry<TbItem>> highlighted = page.getHighlighted();
         for (HighlightEntry<TbItem> entry : highlighted) {
             List<HighlightEntry.Highlight> highlights = entry.getHighlights();
-
             if (highlights.size()>0 && highlights.get(0).getSnipplets().size()>0){
                 TbItem item = entry.getEntity();
                 //将高亮设置后的title赋值给item对象
@@ -215,4 +225,19 @@ public class ItemSearchServiceImpl implements ItemSearchService {
         return map;
     }
 
+
+    @Override
+    public void importList(List list) {
+        solrTemplate.saveBeans(list);
+        solrTemplate.commit();
+    }
+
+    @Override
+    public void deleteByGoodsIds(List goodsIds) {
+        SolrDataQuery query = new SimpleFacetQuery();
+        Criteria criteria = new Criteria("item_goodsid").in(goodsIds);
+        query.addCriteria(criteria);
+        solrTemplate.delete(query);
+        solrTemplate.commit();
+    }
 }
