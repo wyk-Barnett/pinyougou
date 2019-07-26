@@ -3,6 +3,7 @@ import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
+import com.pinyougou.page.service.ItemPageService;
 import com.pinyougou.pojo.TbItem;
 import com.pinyougou.pojogroup.Goods;
 import com.pinyougou.search.service.ItemSearchService;
@@ -125,5 +126,12 @@ public class GoodsController {
 			e.printStackTrace();
 			return new Result(false,"修改失败");
 		}
+	}
+
+	@Reference(timeout = 10000)
+	private ItemPageService itemPageService;
+	@RequestMapping("/getHtml")
+	public void getHtml(Long goodsId){
+		itemPageService.getItemHtml(goodsId);
 	}
 }
