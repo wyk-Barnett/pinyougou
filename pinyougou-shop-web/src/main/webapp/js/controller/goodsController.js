@@ -56,7 +56,6 @@ app.controller('goodsController' ,function($scope,$controller,$location,goodsSer
             function(response){
                 if(response.success){
                     alert(response.message);
-                    alert("保存成功");
                     // $scope.entity={};
                     // //清空副文本编辑器
                     // editor.html("");

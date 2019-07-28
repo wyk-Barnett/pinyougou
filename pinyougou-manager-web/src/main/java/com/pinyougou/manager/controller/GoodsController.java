@@ -119,6 +119,12 @@ public class GoodsController {
 				List<TbItem> itemList = goodsService.findItemListByGoodsIdsAndStutas(ids, status);
 				itemSearchService.importList(itemList);
 				System.out.println("同步到索引库!!!");
+
+				//生成静态页面
+				for (Long goodsId : ids) {
+					itemPageService.getItemHtml(goodsId);
+					System.out.println("生成goodsId:" + goodsId +"的静态页面");
+				}
 			}
 
 			return new Result(true,"修改成功");
