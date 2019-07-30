@@ -28,6 +28,12 @@
             <artifactId>pagehelper</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.apache.activemq</groupId>
+            <artifactId>activemq-client</artifactId>
+            <version>5.13.4</version>
+        </dependency>
+
         <!-- Spring -->
         <dependency>
             <groupId>org.springframework</groupId>
