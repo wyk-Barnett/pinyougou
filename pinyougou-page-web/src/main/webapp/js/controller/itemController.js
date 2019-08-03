@@ -1,4 +1,4 @@
-app.controller("itemController",function ($scope) {
+app.controller("itemController",function ($scope,$http) {
 
 	//数量增减
     $scope.addNum=function(x){
@@ -58,8 +58,18 @@ app.controller("itemController",function ($scope) {
     };
 
 	$scope.addToCart=function () {
-		alert("数量:"+$scope.num +"----" + "skuid"+$scope.sku.id);
-    }
+		// alert("数量:"+$scope.num +"----" + "skuid"+$scope.sku.id);
+		$http.get("http://localhost:9107/cart/addGoodsToCartList.do?itemId="+$scope.sku.id+"&num="+
+			$scope.num,{"withCredentials":true}).success(function (response) {
+			if (response.success){
+				location.href="http://localhost:9107/cart.html";
+			} else {
+				alert(response.message);
+			}
+        });
+    };
+
+
 
 
 });
