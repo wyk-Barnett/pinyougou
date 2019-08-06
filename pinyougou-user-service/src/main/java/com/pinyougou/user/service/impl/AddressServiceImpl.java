@@ -47,7 +47,13 @@ public class AddressServiceImpl implements AddressService {
 	 */
 	@Override
 	public void add(TbAddress address) {
-		addressMapper.insert(address);		
+		if (address.getIsDefault().equals("1")){
+			List<TbAddress> addressList = addressMapper.selectByExample(null);
+			for (TbAddress tbAddress : addressList) {
+				tbAddress.setIsDefault("0");
+			}
+		}
+		addressMapper.insert(address);
 	}
 
 	
@@ -56,6 +62,12 @@ public class AddressServiceImpl implements AddressService {
 	 */
 	@Override
 	public void update(TbAddress address){
+		if (address.getIsDefault().equals("1")){
+			List<TbAddress> addressList = addressMapper.selectByExample(null);
+			for (TbAddress tbAddress : addressList) {
+				tbAddress.setIsDefault("0");
+			}
+		}
 		addressMapper.updateByPrimaryKey(address);
 	}	
 	

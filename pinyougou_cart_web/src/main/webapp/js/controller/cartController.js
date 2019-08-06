@@ -39,6 +39,28 @@ app.controller("cartController",function ($scope, cartService,addressService) {
         $scope.order.paymentType=type;
     };
 
+    $scope.submitOrder=function(){
+        $scope.order.receiverAreaName=$scope.address.address;
+        $scope.order.receiverMobile=$scope.address.mobile;
+        $scope.order.receiver=$scope.address.contact;
+        cartService.submitOrder( $scope.order).success(function (response) {
+            alert(response.message);
+            if (response.success){
+                $scope.cartList=[];
+                if ( $scope.order.paymentType=="1"){
+                    //微信支付跳转到支付页面
+                    location.href="pay.html";
+                } else {
+                    //货到付款跳转到提示页面
+                    location.href="paysuccess.html";
+                }
+            } else {
+                alert(response.message);
+                location.href="payfail.html";
+            }
+        })
+    };
+
 
 
 
